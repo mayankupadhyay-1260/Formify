@@ -1,0 +1,117 @@
+# Root .gitignore for Dynamic-formMaker 🚫
+
+# -----------------------------
+# Node / Dependencies
+# -----------------------------
+# Ignore all node_modules anywhere in the repo
+node_modules/
+**/node_modules/
+
+# Keep lockfiles (package-lock.json / yarn.lock) committed
+
+# -----------------------------
+# Logs
+# -----------------------------
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# -----------------------------
+# Environment / secrets
+# -----------------------------
+# Do NOT commit secret env files
+.env
+.env.local
+.env.*.local
+client/.env
+client/.env.local
+server/.env
+server/.env.local
+
+# -----------------------------
+# Build / output / caches
+# -----------------------------
+dist/
+build/
+out/
+client/dist/
+server/dist/
+
+# Vite caches
+client/.vite/
+.vite/
+node_modules/.vite/
+
+# Other caches
+.cache/
+parcel-cache/
+.pnp/
+
+# -----------------------------
+# Coverage / tests
+# -----------------------------
+coverage/
+.nyc_output/
+coverage-report/
+
+# -----------------------------
+# OS generated files
+# -----------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------
+# Editors / IDEs
+# -----------------------------
+.vscode/
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.code-workspace
+
+# -----------------------------
+# Temporary files
+# -----------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+
+# -----------------------------
+# Database files
+# -----------------------------
+*.sqlite
+*.sqlite3
+*.db
+
+# -----------------------------
+# Misc / archives
+# -----------------------------
+*.tgz
+*.zip
+*.bak
+*.backup
+
+# -----------------------------
+# Deployment / hosting local files
+# -----------------------------
+.vercel/
+.netlify/
+.firebase/
+
+# -----------------------------
+# Platform-specific
+# -----------------------------
+# macOS Finder
+.AppleDouble
+.LSOverride
+
+# Keep this file tidy: add additional local folders you don't want tracked below
