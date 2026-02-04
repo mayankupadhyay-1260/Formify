@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend Debug Tool</h1>
+    
+    <div class="test-section">
+        <h3>Test 1: Basic API Connection</h3>
+        <button onclick="testBasicConnection()">Test API Connection</button>
+        <div id="basic-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Form Fetch</h3>
+        <button onclick="testFormFetch()">Fetch Form Data</button>
+        <div id="form-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Response Submission</h3>
+        <button onclick="testResponseSubmit()">Submit Test Response</button>
+        <div id="submit-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 4: CORS Test</h3>
+        <button onclick="testCORS()">Test CORS</button>
+        <div id="cors-result"></div>
+    </div>
+
+    <script>
+        async function testBasicConnection() {
+            const resultDiv = document.getElementById('basic-result');
+            try {
+                const response = await fetch('http://localhost:3000/');
+                const data = await response.text();
+                resultDiv.innerHTML = `<p class="success">✅ API Connection: ${data}</p>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ API Connection Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testFormFetch() {
+            const resultDiv = document.getElementById('form-result');
+            try {
+                const response = await fetch('http://localhost:3000/api/forms/slug/test-form');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                const data = await response.json();
+                resultDiv.innerHTML = `<p class="success">✅ Form Fetch: ${data.title} (ID: ${data._id})</p>`;
+                window.testFormData = data; // Store for later use
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ Form Fetch Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testResponseSubmit() {
+            const resultDiv = document.getElementById('submit-result');
+            
+            if (!window.testFormData) {
+                resultDiv.innerHTML = `<p class="error">❌ Please fetch form data first</p>`;
+                return;
+            }
+            
+            try {
+                const payload = {
+                    formId: window.testFormData._id,
+                    answers: {
+                        "9Og9Zo-K-thPzYAo8zazZ": "Debug Tool Test",
+                        "0-Jzj5rBqUF7A71a-cO2W": "yes"
+                    }
+                };
+                
+                console.log("Sending payload:", payload);
+                
+                const response = await fetch('http://localhost:3000/api/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log("Response status:", response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errorData.message || response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log("Response data:", data);
+                resultDiv.innerHTML = `<p class="success">✅ Form Submit: Response saved with ID ${data._id}</p>`;
+            } catch (error) {
+                console.error("Submit error:", error);
+                resultDiv.innerHTML = `<p class="error">❌ Form Submit Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testCORS() {
+            const resultDiv = document.getElementById('cors-result');
+            try {
+                const response = await fetch('http://localhost:3000/api/forms', {
+                    method: 'OPTIONS'
+                });
+                resultDiv.innerHTML = `<p class="success">✅ CORS: OPTIONS request successful (${response.status})</p>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<p class="error">❌ CORS Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

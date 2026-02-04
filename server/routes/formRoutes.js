@@ -7,17 +7,24 @@ const router = express.Router();
 router.post("/", async (req, res) => {
     try {
 
-        console.log("Incoming Form:", req.body);
+        const { title, fields, theme, slug } = req.body;
 
-        const form = new Form(req.body);
+        if (!slug) {
+            return res.status(400).json({
+                message: "Slug missing",
+            });
+        }
+
+        const form = new Form({
+            title,
+            fields,
+            theme,
+            slug,
+        });
 
         await form.save();
 
-        res.status(201).json({
-            _id: form._id,
-            slug: form.slug,
-            title: form.title,
-        });
+        res.status(201).json(form);
 
     } catch (err) {
 
@@ -31,16 +38,73 @@ router.post("/", async (req, res) => {
 });
 
 
-// Get All Forms
+// Get all forms
 router.get("/", async (req, res) => {
-    const forms = await Form.find();
-    res.json(forms);
+    try {
+
+        const forms = await Form.find().sort({ createdAt: -1 });
+
+        res.json(forms);
+
+    } catch (err) {
+
+        res.status(500).json({
+            message: "Failed to fetch forms",
+        });
+
+    }
 });
+
+// Get form by slug
+router.get("/slug/:slug", async (req, res) => {
+
+    try {
+
+        const form = await Form.findOne({
+            slug: req.params.slug,
+        });
+
+        if (!form) {
+            return res.status(404).json({
+                message: "Form not found",
+            });
+        }
+
+        res.json(form);
+
+    } catch (err) {
+
+        res.status(500).json({
+            message: "Error fetching form",
+        });
+
+    }
+});
+
+
 
 // Get Form by ID
 router.get("/:id", async (req, res) => {
     const form = await Form.findById(req.params.id);
     res.json(form);
 });
+
+// Delete form
+router.delete("/:id", async (req, res) => {
+    try {
+
+        await Form.findByIdAndDelete(req.params.id);
+
+        res.json({ message: "Deleted" });
+
+    } catch (err) {
+
+        res.status(500).json({
+            message: "Delete failed",
+        });
+
+    }
+});
+
 
 export default router;

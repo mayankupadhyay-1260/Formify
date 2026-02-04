@@ -49,8 +49,6 @@ export default function Builder() {
             slug,
         };
 
-        console.log("Sending:", formToSave);
-
         try {
 
             const res = await fetch("http://localhost:3000/api/forms", {
@@ -63,34 +61,33 @@ export default function Builder() {
 
             const data = await res.json();
 
-            console.log("Response:", data);
-
             if (!res.ok) {
                 throw new Error(data.message);
             }
 
-            const updatedForm = {
+            const updated = {
                 ...form,
                 _id: data._id,
                 slug: data.slug,
             };
 
-            setForm(updatedForm);
+            setForm(updated);
 
             localStorage.setItem(
                 "form-builder-data",
-                JSON.stringify(updatedForm)
+                JSON.stringify(updated)
             );
 
-            alert("Form Saved!");
+            alert("Saved!");
 
         } catch (err) {
 
             console.error(err);
-            alert("Save Failed");
+            alert("Save failed");
 
         }
     };
+
 
 
 

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Connection Test</title>
+</head>
+<body>
+    <h1>Frontend Connection Test</h1>
+    <button onclick="testConnection()">Test API Connection</button>
+    <button onclick="testFormFetch()">Test Form Fetch</button>
+    <button onclick="testFormSubmit()">Test Form Submit</button>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        async function testConnection() {
+            try {
+                const response = await fetch('http://localhost:3000/');
+                const data = await response.text();
+                results.innerHTML += `<p>✅ API Connection: ${data}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ API Connection Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testFormFetch() {
+            try {
+                const response = await fetch('http://localhost:3000/api/forms/slug/test-form');
+                const data = await response.json();
+                results.innerHTML += `<p>✅ Form Fetch: ${data.title} (ID: ${data._id})</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Form Fetch Error: ${error.message}</p>`;
+            }
+        }
+        
+        async function testFormSubmit() {
+            try {
+                const payload = {
+                    formId: "69825cabc23b0dec0175bc0b",
+                    answers: {
+                        "9Og9Zo-K-thPzYAo8zazZ": "Frontend HTML Test",
+                        "0-Jzj5rBqUF7A71a-cO2W": "yes"
+                    }
+                };
+                
+                const response = await fetch('http://localhost:3000/api/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                results.innerHTML += `<p>✅ Form Submit: Response saved with ID ${data._id}</p>`;
+            } catch (error) {
+                results.innerHTML += `<p>❌ Form Submit Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

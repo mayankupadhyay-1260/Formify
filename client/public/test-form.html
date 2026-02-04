@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Form Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .form-container { max-width: 500px; margin: 0 auto; }
+        input, select, button { margin: 10px 0; padding: 10px; width: 100%; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; }
+        .result { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Direct Form Test</h1>
+        
+        <form id="testForm">
+            <input type="text" id="nameField" placeholder="Enter your name" required>
+            <button type="submit">Submit Response</button>
+        </form>
+        
+        <div id="result"></div>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const resultDiv = document.getElementById('result');
+            const nameValue = document.getElementById('nameField').value;
+            
+            console.log('Form submitted with name:', nameValue);
+            
+            // First, get a form to submit to
+            try {
+                resultDiv.innerHTML = '<p>Step 1: Fetching form...</p>';
+                
+                const formResponse = await fetch('http://localhost:3000/api/forms');
+                const forms = await formResponse.json();
+                
+                if (forms.length === 0) {
+                    resultDiv.innerHTML = '<p style="color: red;">No forms found in database</p>';
+                    return;
+                }
+                
+                const form = forms[0]; // Use first form
+                console.log('Using form:', form);
+                
+                resultDiv.innerHTML += '<p>Step 2: Submitting response...</p>';
+                
+                // Create response payload
+                const payload = {
+                    formId: form._id,
+                    answers: {
+                        [form.fields[0].id]: nameValue
+                    }
+                };
+                
+                console.log('Sending payload:', payload);
+                
+                const response = await fetch('http://localhost:3000/api/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(`HTTP ${response.status}: ${errorData.message}`);
+                }
+                
+                const data = await response.json();
+                console.log('Success data:', data);
+                
+                resultDiv.innerHTML += `<p style="color: green;">✅ SUCCESS! Response saved with ID: ${data._id}</p>`;
+                resultDiv.innerHTML += `<p>Form ID: ${data.formId}</p>`;
+                resultDiv.innerHTML += `<p>Answers: ${JSON.stringify(data.answers)}</p>`;
+                resultDiv.innerHTML += `<p>Submitted At: ${data.submittedAt}</p>`;
+                
+                // Clear form
+                document.getElementById('nameField').value = '';
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultDiv.innerHTML += `<p style="color: red;">❌ ERROR: ${error.message}</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
